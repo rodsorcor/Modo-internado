@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Modo Internado">
+<title>Modo Internado</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0c0c0c;--s1:#141414;--s2:#1c1c1c;--s3:#242424;--s4:#2e2e2e;
+  --b1:#2a2a2a;--b2:#383838;--b3:#464646;
+  --t1:#f0ede8;--t2:#8a8784;--t3:#4a4847;--t4:#2e2c2b;
+  --green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-b:rgba(74,222,128,0.3);
+  --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.1);--amber-b:rgba(251,191,36,0.3);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.1);--red-b:rgba(248,113,113,0.3);
+  --blue:#60a5fa;--blue-bg:rgba(96,165,250,0.1);--blue-b:rgba(96,165,250,0.3);
+  --violet:#a78bfa;--violet-bg:rgba(167,139,250,0.1);--violet-b:rgba(167,139,250,0.3);
+  --teal:#2dd4bf;--teal-bg:rgba(45,212,191,0.1);--teal-b:rgba(45,212,191,0.3);
+  --mono:'DM Mono',monospace;--sans:'Sora',sans-serif;
+  --r:10px;--r2:14px;--r3:20px;
+  --nav-h:60px;--sidebar-w:220px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden;}
+button{cursor:pointer;font-family:var(--sans);}
+input,textarea,select{font-family:var(--sans);}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px;}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999;}
+.load-logo{font-family:var(--mono);font-size:18px;color:var(--violet);letter-spacing:0.1em;}
+.load-dots{display:flex;gap:6px;}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--violet);animation:ldp 1.2s ease-in-out infinite;}
+.ld:nth-child(2){animation-delay:0.2s;}.ld:nth-child(3){animation-delay:0.4s;}
+@keyframes ldp{0%,100%{opacity:0.2;transform:scale(0.8);}50%{opacity:1;transform:scale(1.2);}}
+.load-msg{font-size:12px;color:var(--t3);font-family:var(--mono);}
+
+/* SHELL */
+#app{display:none;min-height:100vh;}
+
+/* SIDEBAR DESKTOP */
+.sidebar{display:none;position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:var(--s1);border-right:1px solid var(--b1);flex-direction:column;z-index:100;overflow-y:auto;}
+.sb-logo{padding:20px;border-bottom:1px solid var(--b1);}
+.sb-logo-text{font-family:var(--mono);font-size:16px;color:var(--violet);letter-spacing:0.05em;}
+.sb-logo-sub{font-size:10px;color:var(--t3);margin-top:3px;}
+.sb-mode{margin:12px;display:grid;grid-template-columns:1fr 1fr;background:var(--s2);border-radius:var(--r);padding:3px;border:1px solid var(--b1);}
+.sb-mode-btn{padding:6px;text-align:center;font-size:12px;border-radius:7px;color:var(--t2);font-weight:500;cursor:pointer;transition:all 0.15s;border:none;background:none;}
+.sb-mode-btn.active{background:var(--s3);color:var(--t1);}
+.sb-streak{margin:0 12px 12px;padding:12px;background:var(--s2);border-radius:var(--r);border:1px solid var(--b1);}
+.sb-streak-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;}
+.sb-streak-val{font-size:26px;font-weight:600;font-family:var(--mono);color:var(--amber);}
+.sb-streak-sub{font-size:11px;color:var(--t2);}
+.sb-section{padding:12px 16px 6px;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;}
+.sb-nav{display:flex;flex-direction:column;gap:1px;padding:0 8px;}
+.sb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);color:var(--t2);font-size:13px;cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;}
+.sb-nav-item:hover{color:var(--t1);background:var(--s2);}
+.sb-nav-item.active{color:var(--t1);background:var(--s2);border-left-color:var(--violet);}
+.sb-nav-item i{font-size:16px;width:20px;text-align:center;}
+.sb-badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:20px;background:var(--amber-bg);color:var(--amber);font-family:var(--mono);}
+.sb-divider{height:1px;background:var(--b1);margin:8px 12px;}
+.sb-rotation{margin:8px 12px;padding:10px 12px;background:var(--s2);border-radius:var(--r);border:1px solid var(--b1);}
+.sb-rotation-lbl{font-size:10px;color:var(--t3);margin-bottom:6px;}
+.sb-rotation select{width:100%;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--t1);font-size:12px;padding:5px 8px;outline:none;}
+
+/* BOTTOM NAV MÓVIL */
+.bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--b1);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;color:var(--t3);font-size:10px;cursor:pointer;transition:color 0.15s;position:relative;border:none;background:none;}
+.bn-item.active{color:var(--violet);}
+.bn-item i{font-size:20px;}
+.bn-dot{position:absolute;top:6px;right:calc(50% - 14px);width:7px;height:7px;border-radius:50%;background:var(--red);border:2px solid var(--s1);display:none;}
+.bn-dot.show{display:block;}
+
+/* MAIN CONTENT */
+.main{padding:16px 16px calc(var(--nav-h) + 16px);max-width:100%;}
+
+/* PAGES */
+.page{display:none;animation:fadein 0.2s ease;}
+.page.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:20px;}
+.ph h1{font-size:20px;font-weight:600;letter-spacing:-0.5px;}
+.ph p{font-size:13px;color:var(--t2);margin-top:3px;}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:20px;}
+.stat-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;}
+.stat-val{font-size:26px;font-weight:600;font-family:var(--mono);}
+.stat-val.v{color:var(--violet);}
+.stat-val.a{color:var(--amber);}
+.stat-val.g{color:var(--green);}
+.stat-val.r{color:var(--red);}
+.stat-lbl{font-size:11px;color:var(--t2);margin-top:3px;text-transform:uppercase;letter-spacing:0.04em;}
+
+/* ACTIVITY GITHUB */
+.activity-wrap{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;margin-bottom:20px;}
+.activity-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.activity-header span{font-size:12px;color:var(--t2);}
+.activity-grid{display:grid;grid-template-columns:repeat(28,1fr);gap:3px;}
+.ac{border-radius:2px;aspect-ratio:1;}
+.ac0{background:var(--s3);}
+.ac1{background:#3C3489;}
+.ac2{background:#534AB7;}
+.ac3{background:#7F77DD;}
+.ac4{background:#a78bfa;}
+
+/* ESPECIALIDADES PROGRESO */
+.esp-list{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;margin-bottom:20px;}
+.esp-item{margin-bottom:12px;}
+.esp-item:last-child{margin-bottom:0;}
+.esp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.esp-name{font-size:13px;font-weight:500;}
+.esp-pct{font-size:12px;color:var(--t2);font-family:var(--mono);}
+.esp-bar{height:4px;background:var(--s3);border-radius:4px;}
+.esp-fill{height:4px;border-radius:4px;background:var(--violet);transition:width 0.5s;}
+
+/* SLABEL */
+.slabel{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;font-family:var(--mono);margin-bottom:8px;}
+
+/* DENSE CARD LIST */
+.tema-list{display:flex;flex-direction:column;gap:5px;margin-bottom:20px;}
+.tema-dense{border-left:3px solid;padding:10px 12px;background:var(--s1);border-radius:0 var(--r) var(--r) 0;display:flex;align-items:flex-start;gap:10px;transition:background 0.15s;}
+.tema-dense:hover{background:var(--s2);}
+.tema-dense.vencido{border-left-color:var(--red);}
+.tema-dense.proximo{border-left-color:var(--amber);}
+.tema-dense.fresco{border-left-color:var(--green);}
+.tema-dense.nuevo{border-left-color:var(--t3);}
+.td-main{flex:1;min-width:0;}
+.td-nombre{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.td-row{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.td-pill{font-size:10px;padding:1px 7px;border-radius:20px;background:var(--s3);border:0.5px solid var(--b2);color:var(--t2);}
+.td-days{font-size:10px;color:var(--t2);font-family:var(--mono);}
+.td-pct{font-size:10px;color:var(--t3);font-family:var(--mono);}
+.td-btn{font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--b2);background:none;color:var(--t2);white-space:nowrap;flex-shrink:0;transition:all 0.15s;}
+.td-btn:hover{background:var(--s3);color:var(--t1);}
+.td-btn.primary{border-color:var(--violet-b);color:var(--violet);}
+.td-btn.primary:hover{background:var(--violet-bg);}
+
+/* ACOMPAÑAMIENTO */
+.acomp{background:var(--s1);border:1px solid var(--violet-b);border-radius:var(--r2);padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;}
+.acomp-icon{font-size:18px;flex-shrink:0;}
+.acomp-body{flex:1;}
+.acomp-title{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:4px;}
+.acomp-text{font-size:12px;color:var(--t2);line-height:1.6;}
+.alerta{border-color:var(--red-b);background:var(--red-bg);}
+
+/* MODO ESTUDIO FLUJO */
+.flow-step{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);margin-bottom:8px;overflow:hidden;transition:border-color 0.2s;}
+.flow-step.step-active{border-color:var(--violet-b);}
+.flow-step.step-done{border-color:var(--green-b);}
+.step-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
+.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;font-family:var(--mono);flex-shrink:0;background:var(--s3);color:var(--t2);border:1px solid var(--b1);transition:all 0.2s;}
+.flow-step.step-active .step-num{background:var(--violet-bg);color:var(--violet);border-color:var(--violet-b);}
+.flow-step.step-done .step-num{background:var(--green-bg);color:var(--green);border-color:var(--green-b);}
+.step-title{font-size:14px;font-weight:500;flex:1;}
+.step-tag{font-size:10px;color:var(--t3);font-family:var(--mono);}
+.step-body{padding:0 16px 16px;border-top:1px solid var(--b1);display:none;}
+.flow-step.step-active .step-body,.flow-step.step-open .step-body{display:block;padding-top:14px;}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:12px;}
+
+/* APUNTE INPUT */
+.apunte-area{width:100%;min-height:120px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px;color:var(--t1);font-size:13px;resize:vertical;outline:none;line-height:1.6;}
+.apunte-area:focus{border-color:var(--violet-b);}
+.url-input{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);color:var(--t1);font-size:13px;outline:none;margin-top:8px;}
+.url-input:focus{border-color:var(--violet-b);}
+.img-upload-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.img-thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--b1);}
+
+/* AI CHAT BOX */
+.ai-box{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden;margin-top:10px;}
+.ai-msgs{padding:14px;min-height:60px;max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.msg{font-size:13px;line-height:1.7;max-width:92%;}
+.msg.user{align-self:flex-end;background:var(--violet-bg);border:1px solid var(--violet-b);border-radius:12px 12px 3px 12px;padding:10px 14px;color:var(--t1);}
+.msg.ai{align-self:flex-start;background:var(--s3);border:1px solid var(--b1);border-radius:12px 12px 12px 3px;padding:10px 14px;color:var(--t1);}
+.msg.ai.loading{color:var(--t3);font-style:italic;}
+.ai-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--b1);}
+.ai-textarea{flex:1;background:var(--s3);border:1px solid var(--b1);border-radius:8px;padding:8px 12px;color:var(--t1);font-size:13px;outline:none;resize:none;min-height:36px;max-height:120px;}
+.ai-textarea:focus{border-color:var(--violet-b);}
+.ai-send{padding:8px 16px;border-radius:8px;border:1px solid var(--violet-b);background:var(--violet-bg);color:var(--violet);font-size:13px;transition:all 0.15s;white-space:nowrap;}
+.ai-send:hover{background:rgba(167,139,250,0.2);}
+.ai-send:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* HISTORIA CLÍNICA */
+.hc-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden;margin-bottom:12px;}
+.hc-header{background:var(--s3);padding:12px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;}
+.hc-avatar{width:36px;height:36px;border-radius:50%;background:var(--violet-bg);border:1px solid var(--violet-b);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--violet);font-weight:500;flex-shrink:0;}
+.hc-patient{flex:1;}
+.hc-patient-name{font-size:13px;font-weight:500;}
+.hc-patient-meta{font-size:11px;color:var(--t2);margin-top:1px;}
+.hc-badge{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);}
+.hc-body{padding:14px 16px;}
+.hc-section{margin-bottom:10px;}
+.hc-section-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono);margin-bottom:4px;}
+.hc-section-text{font-size:13px;color:var(--t1);line-height:1.6;}
+.vitals-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:6px;}
+.vital-box{background:var(--s3);border-radius:8px;padding:8px 10px;}
+.vital-val{font-size:16px;font-weight:500;font-family:var(--mono);}
+.vital-name{font-size:10px;color:var(--t2);}
+
+/* OPCIONES */
+.opciones{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.opcion{padding:12px 14px;border-radius:var(--r);border:1px solid var(--b2);background:none;color:var(--t1);font-size:13px;text-align:left;line-height:1.5;transition:all 0.15s;}
+.opcion:hover{border-color:var(--violet-b);background:var(--violet-bg);}
+.opcion.correcta{border-color:var(--green-b);background:var(--green-bg);color:var(--green);}
+.opcion.incorrecta{border-color:var(--red-b);background:var(--red-bg);color:var(--red);}
+
+/* FLASHCARDS */
+.fc-stages{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
+.fc-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-family:var(--mono);border:1px solid var(--b1);color:var(--t3);}
+.fc-pill.s0{border-color:var(--b2);color:var(--t2);}
+.fc-pill.s1{border-color:var(--blue-b);color:var(--blue);background:var(--blue-bg);}
+.fc-pill.s3{border-color:var(--teal-b);color:var(--teal);background:var(--teal-bg);}
+.fc-pill.s7{border-color:var(--amber-b);color:var(--amber);background:var(--amber-bg);}
+.fc-pill.s14{border-color:var(--violet-b);color:var(--violet);background:var(--violet-bg);}
+.fc-pill.done{border-color:var(--green-b);color:var(--green);background:var(--green-bg);}
+.fc-card-wrap{perspective:1000px;cursor:pointer;margin-bottom:12px;}
+.fc-inner{position:relative;width:100%;min-height:190px;transform-style:preserve-3d;transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);}
+.fc-inner.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute;width:100%;min-height:190px;backface-visibility:hidden;border-radius:var(--r2);padding:22px;display:flex;flex-direction:column;justify-content:space-between;}
+.fc-front{background:var(--s1);border:1px solid var(--b1);}
+.fc-back{background:var(--s2);border:1px solid var(--b2);transform:rotateY(180deg);}
+.fc-cat{font-size:10px;color:var(--violet);text-transform:uppercase;letter-spacing:0.1em;font-family:var(--mono);margin-bottom:12px;}
+.fc-q{font-size:15px;font-weight:500;line-height:1.6;flex:1;display:flex;align-items:center;}
+.fc-hint{font-size:11px;color:var(--t3);text-align:center;margin-top:12px;}
+.fc-a{font-size:14px;line-height:1.7;flex:1;display:flex;align-items:flex-start;padding-top:4px;}
+.fc-a-img{width:100%;max-height:120px;object-fit:contain;border-radius:8px;margin-top:10px;border:1px solid var(--b1);}
+.fc-stage-note{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:12px;}
+.fc-eval{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.fc-eval.hidden{display:none;}
+.fc-eval-btn{padding:12px;border-radius:var(--r);border:1px solid;background:none;font-size:13px;font-weight:500;transition:background 0.15s;}
+.fc-eval-btn.ok{border-color:var(--green-b);color:var(--green);}
+.fc-eval-btn.ok:hover{background:var(--green-bg);}
+.fc-eval-btn.fail{border-color:var(--red-b);color:var(--red);}
+.fc-eval-btn.fail:hover{background:var(--red-bg);}
+.fc-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.fc-count{font-size:12px;color:var(--t2);font-family:var(--mono);}
+.fc-nav-btn{padding:7px 16px;border-radius:8px;border:1px solid var(--b1);background:none;color:var(--t1);font-size:12px;}
+.fc-nav-btn:hover{background:var(--s3);}
+.fc-done{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:28px;text-align:center;display:none;}
+.fc-done h3{font-size:18px;font-weight:600;margin-bottom:8px;}
+.fc-done p{color:var(--t2);font-size:13px;line-height:1.6;margin-bottom:20px;}
+.fc-done-stats{display:flex;gap:20px;justify-content:center;margin-bottom:20px;}
+.fc-ds-val{font-size:26px;font-weight:600;font-family:var(--mono);}
+.fc-ds-label{font-size:11px;color:var(--t2);text-transform:uppercase;}
+
+/* BUTTONS */
+.btn{padding:10px 18px;border-radius:var(--r);border:1px solid;background:none;font-size:13px;font-weight:500;transition:all 0.15s;}
+.btn-v{border-color:var(--violet-b);color:var(--violet);}
+.btn-v:hover{background:var(--violet-bg);}
+.btn-g{border-color:var(--green-b);color:var(--green);}
+.btn-g:hover{background:var(--green-bg);}
+.btn-ghost{border-color:var(--b2);color:var(--t2);}
+.btn-ghost:hover{background:var(--s3);color:var(--t1);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.btn-full{width:100%;padding:13px;border-radius:var(--r);border:1px solid var(--violet-b);background:var(--violet-bg);color:var(--violet);font-size:14px;font-weight:500;text-align:center;}
+.btn-full:hover{background:rgba(167,139,250,0.2);}
+
+/* FORM */
+.form-field{margin-bottom:14px;}
+.form-label{font-size:12px;color:var(--t2);display:block;margin-bottom:5px;}
+.form-input{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);color:var(--t1);font-size:13px;outline:none;}
+.form-input:focus{border-color:var(--violet-b);}
+.form-select{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);color:var(--t1);font-size:13px;outline:none;appearance:none;}
+.form-select:focus{border-color:var(--violet-b);}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:20px;}
+.tag-g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b);}
+.tag-r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);}
+.tag-a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b);}
+.tag-v{background:var(--violet-bg);color:var(--violet);border:1px solid var(--violet-b);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2) var(--r2) 0 0;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;animation:slideup 0.25s ease;}
+@keyframes slideup{from{transform:translateY(30px);opacity:0;}to{transform:none;opacity:1;}}
+.modal-handle{width:36px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 16px;}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:14px;}
+
+/* NOTIF BANNER */
+.notif-banner{background:var(--s2);border:1px solid var(--violet-b);border-radius:var(--r);padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;animation:fadein 0.3s ease;}
+.notif-banner i{color:var(--violet);font-size:18px;flex-shrink:0;}
+.notif-banner-text{flex:1;color:var(--t1);}
+.notif-banner-close{color:var(--t3);font-size:16px;background:none;border:none;cursor:pointer;}
+
+/* EMPTY */
+.empty{text-align:center;padding:32px 20px;color:var(--t3);font-size:13px;}
+
+/* SETTINGS NOTIF */
+.notif-settings{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;margin-bottom:16px;}
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--b1);}
+.notif-row:last-child{border-bottom:none;}
+.notif-row-label{font-size:13px;color:var(--t1);}
+.notif-row-sub{font-size:11px;color:var(--t2);margin-top:2px;}
+.toggle{width:42px;height:24px;background:var(--b2);border-radius:12px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;border:none;}
+.toggle.on{background:var(--violet);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:var(--t1);top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:21px;}
+.time-input{padding:5px 10px;background:var(--s3);border:1px solid var(--b1);border-radius:8px;color:var(--t1);font-size:13px;outline:none;font-family:var(--mono);}
+.time-input:focus{border-color:var(--violet-b);}
+
+/* RESPONSIVE DESKTOP */
+@media(min-width:768px){
+  .sidebar{display:flex;}
+  .bottom-nav{display:none;}
+  .main{margin-left:var(--sidebar-w);padding:28px 32px;max-width:calc(var(--sidebar-w) + 720px);}
+  .stats-grid{grid-template-columns:repeat(4,1fr);}
+  .vitals-row{grid-template-columns:repeat(4,1fr);}
+  .opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .fc-eval{grid-template-columns:1fr 1fr;}
+}
+
+/* PWA */
+@media(display-mode:standalone){
+  .main{padding-top:env(safe-area-inset-top,16px);}
+}
+
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>
+const M={name:'Modo Internado',short_name:'Internado',start_url:'./',display:'standalone',background_color:'#0c0c0c',theme_color:'#0c0c0c',icons:[{src:'icon-192.png',sizes:'192x192',type:'image/png'},{src:'icon-512.png',sizes:'512x512',type:'image/png'}]};
+const blob=new Blob([JSON.stringify(M)],{type:'application/json'});
+const link=document.createElement('link');link.rel='manifest';link.href=URL.createObjectURL(blob);document.head.appendChild(link);
+</script>
+</head>
+<body>
+
+<!-- LOADING -->
+
+<!-- AUTH MODAL -->
+<div id="auth-modal" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:380px;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-family:var(--mono);font-size:20px;color:var(--violet);letter-spacing:0.1em;margin-bottom:8px;">MODO INTERNADO</div>
+      <div style="font-size:12px;color:var(--t3);">sistema kinestésico · internado PE</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:24px;">
+      <div style="display:flex;gap:0;margin-bottom:20px;background:var(--s2);border-radius:var(--r);padding:3px;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:8px;border:none;border-radius:7px;background:var(--s3);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);">Iniciar sesión</button>
+        <button id="tab-registro" onclick="switchAuthTab('registro')" style="flex:1;padding:8px;border:none;border-radius:7px;background:none;color:var(--t2);font-size:13px;cursor:pointer;font-family:var(--sans);">Registrarse</button>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="auth-email" type="email" placeholder="tu@email.com" onkeydown="if(event.key==='Enter')authAction()">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="auth-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')authAction()">
+      </div>
+      <div id="auth-error" style="font-size:12px;color:var(--red);margin-bottom:12px;display:none;padding:8px;background:var(--red-bg);border-radius:var(--r);border:1px solid var(--red-b)"></div>
+      <button class="btn-full" id="auth-btn" onclick="authAction()">Entrar</button>
+      <p style="font-size:11px;color:var(--t3);text-align:center;margin-top:14px;line-height:1.6;">Tus datos se sincronizan automáticamente entre todos tus dispositivos.</p>
+    </div>
+  </div>
+</div>
+
+<div id="loading">
+  <div class="load-logo">MODO INTERNADO</div>
+  <div class="load-dots"><span class="ld"></span><span class="ld"></span><span class="ld"></span></div>
+  <p class="load-msg" id="load-msg">cargando tu sistema...</p>
+</div>
+
+<div id="app">
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-text">MODO INTERNADO</div>
+      <div class="sb-logo-sub">sistema kinestésico · internado PE</div>
+    </div>
+    <div class="sb-mode">
+      <div class="sb-mode-btn active" id="sb-mode-estudio" onclick="setMode('estudio')">Estudio</div>
+      <div class="sb-mode-btn" id="sb-mode-repaso" onclick="setMode('repaso')">Repaso</div>
+    </div>
+    <div class="sb-streak">
+      <div class="sb-streak-lbl">Racha activa</div>
+      <div class="sb-streak-val" id="streak-val">0</div>
+      <div class="sb-streak-sub" id="streak-sub">días consecutivos</div>
+    </div>
+    <div class="sb-rotation">
+      <div class="sb-rotation-lbl">Rotación actual</div>
+      <select id="rotacion-sel" onchange="guardarRotacion()">
+        <option>Guardia general</option>
+        <option>Medicina interna</option>
+        <option>Cardiología</option>
+        <option>Neumología</option>
+        <option>Neurología</option>
+        <option>Gastroenterología</option>
+        <option>Nefrología</option>
+        <option>Endocrinología</option>
+        <option>Infectología</option>
+        <option>Hematología</option>
+        <option>Cirugía</option>
+        <option>Traumatología</option>
+        <option>Ginecología</option>
+        <option>Pediatría</option>
+        <option>UCI</option>
+      </select>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">Estudio</div>
+    <div class="sb-nav">
+      <div class="sb-nav-item active" id="sbn-home" onclick="showPage('home')"><i class="ti ti-home" aria-hidden="true"></i> Inicio</div>
+      <div class="sb-nav-item" id="sbn-estudio" onclick="showPage('estudio')"><i class="ti ti-book" aria-hidden="true"></i> Nuevo tema</div>
+      <div class="sb-nav-item" id="sbn-flashcards" onclick="showPage('flashcards')"><i class="ti ti-cards" aria-hidden="true"></i> Flashcards</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">Repaso</div>
+    <div class="sb-nav">
+      <div class="sb-nav-item" id="sbn-repaso" onclick="showPage('repaso')"><i class="ti ti-refresh" aria-hidden="true"></i> Repasar</div>
+      <div class="sb-nav-item" id="sbn-temas" onclick="showPage('temas')"><i class="ti ti-list" aria-hidden="true"></i> Mis temas</div>
+      <div class="sb-nav-item" id="sbn-ajustes" onclick="showPage('ajustes')"><i class="ti ti-settings" aria-hidden="true"></i> Ajustes</div>
+    </div>
+    <div style="margin-top:auto;padding:12px;border-top:1px solid var(--b1);">
+      <div style="font-size:11px;color:var(--t3);margin-bottom:6px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sb-user-email"></div>
+      <button onclick="cerrarSesion()" style="width:100%;padding:7px;border-radius:var(--r);border:1px solid var(--b1);background:none;color:var(--t2);font-size:12px;cursor:pointer;font-family:var(--sans);">Cerrar sesión</button>
+    </div>
+    <div style="display:none">
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="ph">
+        <h1>Buenos días, Rodrigo</h1>
+        <p id="home-date"></p>
+      </div>
+      <div id="acomp-container"></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val v" id="stat-temas">0</div><div class="stat-lbl">Temas activos</div></div>
+        <div class="stat-card"><div class="stat-val a" id="stat-hoy">0</div><div class="stat-lbl">Repasos hoy</div></div>
+        <div class="stat-card"><div class="stat-val g" id="stat-dom">0</div><div class="stat-lbl">Mazos dominados</div></div>
+        <div class="stat-card"><div class="stat-val r" id="stat-dias">0</div><div class="stat-lbl">Días sin repasar (máx)</div></div>
+      </div>
+      <div class="slabel">Actividad — últimas 4 semanas</div>
+      <div class="activity-wrap">
+        <div class="activity-header">
+          <span>menos</span>
+          <div style="display:flex;gap:3px"><div style="width:12px;height:12px;border-radius:2px;background:var(--s3)"></div><div style="width:12px;height:12px;border-radius:2px;background:#3C3489"></div><div style="width:12px;height:12px;border-radius:2px;background:#534AB7"></div><div style="width:12px;height:12px;border-radius:2px;background:#a78bfa"></div></div>
+          <span>más</span>
+        </div>
+        <div class="activity-grid" id="activity-grid"></div>
+      </div>
+      <div class="slabel">Progreso por especialidad</div>
+      <div class="esp-list" id="esp-list"></div>
+      <div class="slabel">Pendientes hoy</div>
+      <div class="tema-list" id="home-pendientes"></div>
+      <div class="slabel">Todos los temas</div>
+      <div class="tema-list" id="home-todos"></div>
+    </div>
+
+    <!-- ESTUDIO -->
+    <div class="page" id="page-estudio">
+      <div class="ph"><h1>Modo Estudio</h1><p>Flujo kinestésico completo para un tema nuevo</p></div>
+
+      <div id="estudio-selector">
+        <div class="slabel">¿Qué tema vas a estudiar?</div>
+        <div class="form-field"><input class="form-input" id="tema-input" placeholder="Ej: Insuficiencia cardíaca aguda..." onkeydown="if(event.key==='Enter')iniciarEstudio()"></div>
+        <div class="form-field">
+          <label class="form-label">Especialidad</label>
+          <select class="form-select" id="esp-input">
+            <option>Guardia general</option><option>Medicina interna</option><option>Cardiología</option>
+            <option>Neumología</option><option selected>Neurología</option><option>Gastroenterología</option>
+            <option>Nefrología</option><option>Endocrinología</option><option>Infectología</option>
+            <option>Hematología</option><option>Cirugía</option><option>Traumatología</option>
+            <option>Ginecología</option><option>Pediatría</option><option>UCI</option>
+          </select>
+        </div>
+        <button class="btn-full" onclick="iniciarEstudio()">Comenzar →</button>
+        <div style="margin-top:20px">
+          <div class="slabel">O retomar un tema anterior</div>
+          <div class="tema-list" id="temas-retomar"></div>
+        </div>
+      </div>
+
+      <div id="estudio-flujo" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:10px">
+          <div>
+            <div style="font-size:18px;font-weight:600" id="flujo-titulo"></div>
+            <div style="font-size:12px;color:var(--t2)" id="flujo-esp"></div>
+          </div>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="volverSelector()">← Cambiar</button>
+        </div>
+
+        <!-- PASO 1: APUNTE -->
+        <div class="flow-step step-active step-open" id="step-1">
+          <div class="step-header" onclick="toggleStep(1)">
+            <div class="step-num">1</div>
+            <div class="step-title">Pegar apunte</div>
+            <div class="step-tag">base del estudio</div>
+          </div>
+          <div class="step-body">
+            <p class="step-desc">Pega el texto de tu apunte. Todo lo que Claude genere — casos, árbol, flashcards — estará basado exactamente en este contenido.</p>
+            <div class="form-field">
+              <textarea class="apunte-area" id="apunte-textarea" placeholder="Pega aquí el texto de tu apunte..."></textarea>
+            </div>
+            <div class="form-field">
+              <label class="form-label">URL de recurso externo (opcional)</label>
+              <input class="url-input" id="apunte-url" placeholder="https://..." type="url">
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-v" onclick="guardarApunte()">Guardar apunte →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 2: ACTIVACIÓN -->
+        <div class="flow-step" id="step-2">
+          <div class="step-header" onclick="toggleStep(2)">
+            <div class="step-num">2</div>
+            <div class="step-title">Caso de activación</div>
+            <div class="step-tag">antes de leer · ~10 min</div>
+          </div>
+          <div class="step-body">
+            <p class="step-desc">Claude genera un caso basado en tu apunte. Enfréntalo antes de releer el material para identificar tus vacíos reales.</p>
+            <button class="btn btn-v" onclick="generarCasoActivacion()">↗ Generar caso de activación</button>
+            <div id="caso-act-box" style="margin-top:12px"></div>
+            <div class="btn-row" id="paso1-done" style="display:none">
+              <button class="btn btn-g" onclick="completarPaso(2)">✓ Caso enfrentado →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 3: REPASO ACTIVO -->
+        <div class="flow-step" id="step-3">
+          <div class="step-header" onclick="toggleStep(3)">
+            <div class="step-num">3</div>
+            <div class="step-title">Repaso activo + árbol</div>
+            <div class="step-tag">leer con misión · ~25 min</div>
+          </div>
+          <div class="step-body">
+            <p class="step-desc">Lee el apunte marcando perlas y alertas. Pregunta dudas aquí. Luego dibuja el árbol de decisión a mano y sube la foto para evaluación.</p>
+            <div class="ai-box" id="repaso-chat">
+              <div class="ai-msgs" id="repaso-chat-msgs"></div>
+              <div class="ai-input-row">
+                <textarea class="ai-textarea" id="repaso-chat-input" rows="1" placeholder="Pregunta sobre el apunte..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarRepasoChat();}"></textarea>
+                <button class="ai-send" id="repaso-chat-send" onclick="enviarRepasoChat()">Enviar</button>
+              </div>
+            </div>
+            <div style="margin-top:14px">
+              <p class="step-desc">Dibuja tu árbol de decisión clínica en papel. Cuando termines, sube la foto:</p>
+              <input type="file" id="arbol-est-file" accept="image/*" style="display:none" onchange="evaluarArbolEstudio()">
+              <button class="btn btn-v" onclick="document.getElementById('arbol-est-file').click()">↑ Subir foto del árbol</button>
+              <div id="arbol-est-eval" style="margin-top:12px"></div>
+            </div>
+            <div class="btn-row" id="paso3-done" style="display:none">
+              <button class="btn btn-g" onclick="completarPaso(3)">✓ Árbol evaluado →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 4: FLASHCARDS -->
+        <div class="flow-step" id="step-4">
+          <div class="step-header" onclick="toggleStep(4)">
+            <div class="step-num">4</div>
+            <div class="step-title">Generar flashcards</div>
+            <div class="step-tag">cierre del bloque · ~5 min</div>
+          </div>
+          <div class="step-body">
+            <p class="step-desc">Claude genera 15 tarjetas atómicas basadas exactamente en tu apunte. Se guardan en el algoritmo de repaso espaciado.</p>
+            <button class="btn btn-v" id="btn-gen-fc" onclick="generarFlashcards()">↗ Generar flashcards del apunte</button>
+            <div id="fc-gen-box" style="margin-top:12px"></div>
+            <div class="btn-row" id="paso4-done" style="display:none">
+              <button class="btn btn-g" onclick="completarEstudio()">✓ Guardar y cerrar bloque</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div class="page" id="page-flashcards">
+      <div class="ph"><h1>Flashcards</h1><p>Algoritmo 0 → 1 → 3 → 7 → 14 días</p></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="fc-selector"></div>
+      <div id="fc-stages-bar" class="fc-stages"></div>
+      <div class="fc-card-wrap" id="fc-card-wrap" onclick="flipFC()">
+        <div class="fc-inner" id="fc-inner">
+          <div class="fc-face fc-front">
+            <div><div class="fc-cat" id="fc-cat-f">—</div><div class="fc-q" id="fc-q">Selecciona un tema para comenzar</div></div>
+            <div class="fc-hint">Toca para ver el reverso</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div><div class="fc-cat" id="fc-cat-b">—</div><div class="fc-a" id="fc-a"></div></div>
+            <div>
+              <input type="file" id="fc-img-input" accept="image/*" style="display:none" onchange="addImgToCard()">
+              <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-bottom:8px" onclick="event.stopPropagation();document.getElementById('fc-img-input').click()">+ Imagen de apoyo</button>
+              <div class="fc-stage-note" id="fc-stage-note"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-eval hidden" id="fc-eval">
+        <button class="fc-eval-btn ok" onclick="markFC(true)">✓ Lo sabía</button>
+        <button class="fc-eval-btn fail" onclick="markFC(false)">✗ Repasar</button>
+      </div>
+      <div class="fc-done" id="fc-done">
+        <h3 id="fc-done-title"></h3>
+        <p id="fc-done-msg"></p>
+        <div class="fc-done-stats">
+          <div><div class="fc-ds-val" style="color:var(--green)" id="fc-done-ok">0</div><div class="fc-ds-label">Correctas</div></div>
+          <div><div class="fc-ds-val" style="color:var(--red)" id="fc-done-fail">0</div><div class="fc-ds-label">A repasar</div></div>
+        </div>
+        <div class="btn-row" style="justify-content:center">
+          <button class="btn btn-g" id="btn-export-anki" style="display:none" onclick="exportAnki()">↓ Exportar a Anki</button>
+          <button class="btn btn-ghost" onclick="reiniciarFC()">Repetir sesión</button>
+        </div>
+      </div>
+      <div class="fc-nav">
+        <button class="fc-nav-btn" onclick="prevFC()">← Anterior</button>
+        <span class="fc-count" id="fc-count">— / —</span>
+        <button class="fc-nav-btn" onclick="nextFC()">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- REPASO -->
+    <div class="page" id="page-repaso">
+      <div class="ph"><h1>Modo Repaso</h1><p>Casos holísticos + interrogatorio + árbol</p></div>
+      <div id="repaso-selector">
+        <div class="slabel">¿Qué tema quieres repasar?</div>
+        <div class="tema-list" id="repaso-temas-list"></div>
+      </div>
+      <div id="repaso-flujo" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-size:18px;font-weight:600" id="repaso-titulo"></div>
+            <div style="font-size:12px;color:var(--t2)" id="repaso-dias-sub"></div>
+          </div>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="volverRepasoSel()">← Volver</button>
+        </div>
+
+        <!-- CASO HOLÍSTICO -->
+        <div class="slabel">Caso clínico holístico</div>
+        <div class="ai-box" style="margin-bottom:16px">
+          <div class="ai-msgs" id="repaso-caso-msgs"></div>
+          <div style="padding:10px 12px;border-top:1px solid var(--b1)">
+            <button class="btn btn-v" id="btn-caso-repaso" onclick="generarCasoRepaso()">↗ Generar caso holístico</button>
+          </div>
+        </div>
+
+        <!-- RESPUESTA LIBRE -->
+        <div id="repaso-libre-area" style="display:none">
+          <div class="slabel">Tu respuesta libre</div>
+          <div class="ai-box" style="margin-bottom:12px">
+            <div class="ai-msgs" id="repaso-libre-msgs"></div>
+            <div class="ai-input-row">
+              <textarea class="ai-textarea" id="repaso-libre-input" rows="2" placeholder="Escribe tu diagnóstico y manejo completo..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarRespuestaLibre();}"></textarea>
+              <button class="ai-send" onclick="enviarRespuestaLibre()">Enviar</button>
+            </div>
+          </div>
+          <div id="repaso-opciones-area" style="display:none">
+            <div class="slabel">Autoevaluación</div>
+            <div class="opciones" id="repaso-opciones"></div>
+            <div id="repaso-feedback"></div>
+          </div>
+        </div>
+
+        <!-- INTERROGATORIO -->
+        <div style="margin-top:20px">
+          <div class="slabel">Interrogatorio oral con Claude</div>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:10px">Claude te hace 5 preguntas del tema basadas en tu apunte, evalúa cada respuesta y da un resumen final.</p>
+          <button class="btn btn-v" onclick="iniciarInterrogatorio()">↗ Iniciar interrogatorio</button>
+          <div id="interrogatorio-box" style="margin-top:12px"></div>
+        </div>
+
+        <!-- ÁRBOL -->
+        <div style="margin-top:20px">
+          <div class="slabel">Árbol clínico de repaso</div>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:10px">Dibuja el árbol de memoria y sube la foto. Claude lo evalúa contra tu apunte.</p>
+          <input type="file" id="arbol-rep-file" accept="image/*" style="display:none" onchange="evaluarArbolRepaso()">
+          <button class="btn btn-v" onclick="document.getElementById('arbol-rep-file').click()">↑ Subir árbol de repaso</button>
+          <div id="arbol-rep-eval" style="margin-top:12px"></div>
+        </div>
+
+        <div class="btn-row" style="margin-top:24px">
+          <button class="btn btn-g" onclick="cerrarRepaso()">✓ Marcar repaso completado</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIS TEMAS -->
+    <div class="page" id="page-temas">
+      <div class="ph"><h1>Mis temas</h1><p>Historial completo de estudio</p></div>
+      <div class="tema-list" id="all-temas"></div>
+      <div style="margin-top:24px">
+        <div class="slabel">Agregar tema manual</div>
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:16px">
+          <div class="form-field">
+            <label class="form-label">Nombre del tema</label>
+            <input class="form-input" id="manual-nombre" placeholder="Ej: Diabetes mellitus tipo 2">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Especialidad</label>
+            <select class="form-select" id="manual-esp">
+              <option>Guardia general</option><option>Medicina interna</option><option>Cardiología</option>
+              <option>Neumología</option><option>Neurología</option><option>Gastroenterología</option>
+              <option>Nefrología</option><option>Endocrinología</option><option>Infectología</option>
+              <option>Cirugía</option><option>Pediatría</option><option>UCI</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Flashcards opcionales (Pregunta | Respuesta, una por línea)</label>
+            <textarea class="apunte-area" style="min-height:80px" id="manual-cards" placeholder="¿Cuál es el criterio diagnóstico de DM2? | Glucosa en ayunas ≥126 mg/dL en dos ocasiones"></textarea>
+          </div>
+          <button class="btn btn-v" onclick="agregarTemaManual()">Agregar tema</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AJUSTES -->
+    <div class="page" id="page-ajustes">
+      <div class="ph"><h1>Ajustes</h1><p>Notificaciones y preferencias</p></div>
+
+      <div class="slabel">Notificaciones</div>
+      <div class="notif-settings">
+        <div class="notif-row">
+          <div><div class="notif-row-label">Recordatorio diario</div><div class="notif-row-sub">Recuerda repasar cada día</div></div>
+          <button class="toggle on" id="toggle-diaria" onclick="toggleNotif('diaria')" aria-label="toggle recordatorio diario"></button>
+        </div>
+        <div class="notif-row">
+          <div><div class="notif-row-label">Hora del recordatorio</div></div>
+          <input type="time" class="time-input" id="notif-hora" value="20:00" onchange="guardarHora()">
+        </div>
+        <div class="notif-row">
+          <div><div class="notif-row-label">Alerta de temas vencidos</div><div class="notif-row-sub">Cuando superen 14 días sin repasar</div></div>
+          <button class="toggle on" id="toggle-vencidos" onclick="toggleNotif('vencidos')" aria-label="toggle alerta vencidos"></button>
+        </div>
+      </div>
+
+      <div class="slabel">Instalar como app</div>
+      <div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;margin-bottom:20px">
+        <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px">Para instalar en móvil: abre este archivo en Chrome o Safari, toca el menú del navegador y selecciona "Agregar a pantalla de inicio". En desktop: busca el ícono de instalación en la barra de direcciones.</p>
+        <button class="btn btn-v" id="btn-instalar" style="display:none" onclick="instalarPWA()">↓ Instalar app</button>
+        <p style="font-size:12px;color:var(--t3)" id="pwa-status">Las notificaciones requieren la app instalada.</p>
+      </div>
+
+      <div class="slabel">Datos</div>
+      <div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:16px">
+        <button class="btn btn-ghost" style="width:100%;margin-bottom:8px" onclick="exportarDatos()">↓ Exportar todos los datos (JSON)</button>
+        <button class="btn" style="width:100%;border-color:var(--red-b);color:var(--red)" onclick="if(confirm('¿Borrar todos los datos? Esta acción es irreversible.'))resetDatos()">Borrar todos los datos</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV MÓVIL -->
+  <nav class="bottom-nav">
+    <button class="bn-item active" id="bn-home" onclick="showPage('home')" aria-label="Inicio">
+      <div class="bn-dot" id="bn-badge-home"></div>
+      <i class="ti ti-home" aria-hidden="true"></i>
+      <span>Inicio</span>
+    </button>
+    <button class="bn-item" id="bn-estudio" onclick="showPage('estudio')" aria-label="Estudio">
+      <i class="ti ti-book" aria-hidden="true"></i>
+      <span>Estudio</span>
+    </button>
+    <button class="bn-item" id="bn-flashcards" onclick="showPage('flashcards')" aria-label="Flashcards">
+      <div class="bn-dot" id="bn-badge-fc"></div>
+      <i class="ti ti-cards" aria-hidden="true"></i>
+      <span>Cards</span>
+    </button>
+    <button class="bn-item" id="bn-repaso" onclick="showPage('repaso')" aria-label="Repaso">
+      <div class="bn-dot" id="bn-badge-rep"></div>
+      <i class="ti ti-refresh" aria-hidden="true"></i>
+      <span>Repaso</span>
+    </button>
+    <button class="bn-item" id="bn-temas" onclick="showPage('temas')" aria-label="Mis temas">
+      <i class="ti ti-list" aria-hidden="true"></i>
+      <span>Temas</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  const btn=document.getElementById('btn-instalar');
+  if(btn)btn.style.display='inline-flex';
+});
+function instalarPWA(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(r=>{
+    if(r.outcome==='accepted')document.getElementById('pwa-status').textContent='App instalada correctamente.';
+    deferredPrompt=null;
+  });
+}
+function exportarDatos(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='modo_internado_backup.json';a.click();
+}
+async function resetDatos(){
+  try{await window.storage.delete('modo_internado_v3');}catch(e){}
+  localStorage.removeItem('modo_internado_v3');
+  location.reload();
+}
+</script>
+<script>
+const STAGES=[0,1,3,7,14];
+const STAGE_LABELS=['Día 0','Día 1','Día 3','Día 7','Día 14','Anki ✓'];
+const ESPECIALIDADES=['Guardia general','Medicina interna','Cardiología','Neumología','Neurología','Gastroenterología','Nefrología','Endocrinología','Infectología','Hematología','Oncología','Cirugía','Traumatología','Ginecología','Pediatría','Psiquiatría','UCI'];
+const STORAGE_KEY='modo_internado_v3';
+
+let db={temas:[],streak:0,lastStudyDate:null,totalSessions:0,notifHora:'20:00',notifDiaria:true,notifVencidos:true,rotacion:'Guardia general',actividad:[]};
+let currentPage='home';
+let currentMode='estudio';
+let estudioState={temaId:null,paso:0,apunte:'',apunteUrl:'',apunteImgB64:null,casosHistorial:[]};
+let repasoState={temaId:null,casoActual:null,casosHistorial:[]};
+let fcState={temaId:null,cards:[],idx:0,flipped:false,ok:0,fail:0};
+let chatHistorial={};
+
+
+// ─── SUPABASE CONFIG ──────────────────────────────────────────
+const SB_URL='https://jmkrwgzeruqutkdgpqru.supabase.co';
+const SB_KEY='sb_publishable_syeDaRmt1Ah8zeY8w3k54A_G63W4Swr';
+
+// Headers correctos para las nuevas claves sb_publishable
+function sbHeaders(token){
+  const h={'Content-Type':'application/json','apikey':SB_KEY};
+  if(token)h['Authorization']='Bearer '+token;
+  return h;
+}
+
+// Auth state
+let sbSession=null;
+
+// ─── AUTH ─────────────────────────────────────────────────────
+async function sbSignUp(email,password){
+  const r=await fetch(SB_URL+'/auth/v1/signup',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY},
+    body:JSON.stringify({email,password})
+  });
+  return r.json();
+}
+
+async function sbSignIn(email,password){
+  const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY},
+    body:JSON.stringify({email,password})
+  });
+  const data=await r.json();
+  if(data.access_token){
+    sbSession={access_token:data.access_token,refresh_token:data.refresh_token,user:data.user};
+    localStorage.setItem('sb_session',JSON.stringify(sbSession));
+  }
+  return data;
+}
+
+async function sbSignOut(){
+  if(sbSession){
+    await fetch(SB_URL+'/auth/v1/logout',{
+      method:'POST',
+      headers:sbHeaders(sbSession.access_token)
+    });
+  }
+  sbSession=null;
+  localStorage.removeItem('sb_session');
+}
+
+async function sbRefreshSession(){
+  const stored=localStorage.getItem('sb_session');
+  if(!stored)return false;
+  const s=JSON.parse(stored);
+  const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY},
+    body:JSON.stringify({refresh_token:s.refresh_token})
+  });
+  const data=await r.json();
+  if(data.access_token){
+    sbSession={access_token:data.access_token,refresh_token:data.refresh_token,user:data.user};
+    localStorage.setItem('sb_session',JSON.stringify(sbSession));
+    return true;
+  }
+  return false;
+}
+
+// ─── SYNC DB ──────────────────────────────────────────────────
+async function syncToSupabase(){
+  if(!sbSession)return;
+  try{
+    const userId=sbSession.user.id;
+    // Upsert: si existe actualiza, si no crea
+    await fetch(SB_URL+'/rest/v1/user_data',{
+      method:'POST',
+      headers:{
+        ...sbHeaders(sbSession.access_token),
+        'Prefer':'resolution=merge-duplicates'
+      },
+      body:JSON.stringify({id:userId,data:db,updated_at:new Date().toISOString()})
+    });
+  }catch(e){console.warn('Sync error:',e);}
+}
+
+async function loadFromSupabase(){
+  if(!sbSession)return false;
+  try{
+    const userId=sbSession.user.id;
+    const r=await fetch(SB_URL+'/rest/v1/user_data?id=eq.'+userId,{
+      headers:sbHeaders(sbSession.access_token)
+    });
+    const data=await r.json();
+    if(data&&data[0]&&data[0].data){
+      db={...db,...data[0].data};
+      return true;
+    }
+  }catch(e){console.warn('Load error:',e);}
+  return false;
+}
+
+// ─── STORAGE ────────────────────────────────────────────────
+async function saveDB(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){}
+  // Sync a Supabase si hay sesión activa
+  syncToSupabase().catch(()=>{});
+}
+async function loadDB(){
+  // 1. Intentar cargar de Supabase (fuente de verdad si hay sesión)
+  if(sbSession){
+    const loaded=await loadFromSupabase();
+    if(loaded)return;
+  }
+  // 2. Fallback a localStorage
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r){db={...db,...JSON.parse(r)};}}catch(e){}
+}
+
+// ─── HELPERS ────────────────────────────────────────────────
+function today(){return new Date().toISOString().split('T')[0];}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
+function daysSince(d){if(!d)return 999;return Math.floor((new Date()-new Date(d))/86400000);}
+function isDue(c){if(c.stage>=STAGES.length)return false;return !c.nextReview||c.nextReview<=today();}
+function uid(){return Date.now()+Math.random().toString(36).slice(2,7);}
+function initials(n){return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function statusTema(t){
+  const d=daysSince(t.ultimoRepaso);
+  if(d>14)return'vencido';
+  if(d>3)return'proximo';
+  if(d===0)return'fresco';
+  return'fresco';
+}
+function pendientesTema(t){return t.cards?t.cards.filter(isDue).length:0;}
+
+// ─── CLAUDE API ─────────────────────────────────────────────
+async function claude(messages,system,maxTokens=1200){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:maxTokens,
+        system:system||`Eres un tutor médico clínico para Rodrigo, un interno de medicina en Perú. 
+Siempre en español. Sé directo y clínico. Sin relleno. 
+Rodrigo aprende mejor con kinestesia: casos prácticos, simulaciones y ejemplos concretos.`,
+        messages
+      })
+    });
+    const d=await r.json();
+    return d.content&&d.content[0]?d.content[0].text:'[Error de conexión]';
+  }catch(e){return'[Error: '+e.message+']';}
+}
+
+async function claudeImg(messages,system){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        system:system||'Eres un tutor médico clínico. Evalúa imágenes de árboles de decisión. En español.',
+        messages
+      })
+    });
+    const d=await r.json();
+    return d.content&&d.content[0]?d.content[0].text:'[Error]';
+  }catch(e){return'[Error]';}
+}
+
+// ─── RENDER HELPERS ─────────────────────────────────────────
+function el(id){return document.getElementById(id);}
+function setHTML(id,html){const e=el(id);if(e)e.innerHTML=html;}
+
+function addMsg(containerId,text,role){
+  const c=el(containerId);if(!c)return null;
+  const d=document.createElement('div');
+  d.className='msg '+role;
+  d.innerHTML=text.replace(/\n/g,'<br>');
+  c.appendChild(d);
+  c.scrollTop=c.scrollHeight;
+  return d;
+}
+
+// ─── ROUTING ────────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sb-nav-item').forEach(b=>b.classList.remove('active'));
+  const page=el('page-'+id);
+  if(page)page.classList.add('active');
+  const bn=el('bn-'+id);
+  if(bn)bn.classList.add('active');
+  const sbn=el('sbn-'+id);
+  if(sbn)sbn.classList.add('active');
+  currentPage=id;
+  if(id==='home')renderHome();
+  if(id==='estudio')renderEstudio();
+  if(id==='flashcards')renderFC();
+  if(id==='repaso')renderRepaso();
+  if(id==='temas')renderTemas();
+  if(id==='ajustes')renderAjustes();
+  window.scrollTo(0,0);
+}
+
+function setMode(m){
+  currentMode=m;
+  el('sb-mode-estudio').classList.toggle('active',m==='estudio');
+  el('sb-mode-repaso').classList.toggle('active',m==='repaso');
+  showPage(m==='estudio'?'estudio':'repaso');
+}
+
+// ─── HOME ────────────────────────────────────────────────────
+function renderHome(){
+  const temas=db.temas||[];
+  const vencidos=temas.filter(t=>daysSince(t.ultimoRepaso)>14);
+  const hoy=temas.filter(t=>pendientesTema(t)>0);
+  const dominados=temas.filter(t=>t.cards&&t.cards.length>0&&t.cards.every(c=>c.stage>=STAGES.length));
+  const maxDias=temas.length?Math.max(...temas.map(t=>daysSince(t.ultimoRepaso))):0;
+
+  setHTML('stat-temas',temas.length);
+  setHTML('stat-hoy',hoy.length);
+  setHTML('stat-dom',dominados.length);
+  setHTML('stat-dias',maxDias>0?maxDias:0);
+  setHTML('streak-val',db.streak||0);
+  setHTML('streak-sub',(db.streak===1)?'día consecutivo':'días consecutivos');
+
+  el('home-date').textContent=new Date().toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
+
+  // badges
+  const totalPend=hoy.reduce((a,t)=>a+pendientesTema(t),0);
+  ['bn-badge-fc','bn-badge-rep'].forEach(id=>{
+    const e=el(id);if(!e)return;
+    if(totalPend>0){e.textContent=totalPend;e.classList.add('show');}
+    else e.classList.remove('show');
+  });
+
+  // acompañamiento
+  const ac=el('acomp-container');
+  if(ac){
+    if(vencidos.length>0){
+      ac.innerHTML=`<div class="acomp alerta"><i class="ti ti-alert-triangle acomp-icon" aria-hidden="true"></i><div class="acomp-body"><div class="acomp-title">${vencidos.length} tema${vencidos.length>1?'s':''} vencido${vencidos.length>1?'s':''}</div><div class="acomp-text">${vencidos.map(t=>t.nombre).join(', ')} — sin repasar por más de 14 días.</div></div></div>`;
+    } else if(hoy.length>0){
+      ac.innerHTML=`<div class="acomp"><i class="ti ti-target acomp-icon" aria-hidden="true"></i><div class="acomp-body"><div class="acomp-title">Tienes ${hoy.length} repaso${hoy.length>1?'s':''} hoy</div><div class="acomp-text">El repaso espaciado funciona solo si lo haces cuando toca.</div></div></div>`;
+    } else if(temas.length>0){
+      ac.innerHTML=`<div class="acomp"><i class="ti ti-check acomp-icon" aria-hidden="true"></i><div class="acomp-body"><div class="acomp-title">Todo al día</div><div class="acomp-text">Sin repasos pendientes. Puedes estudiar un tema nuevo.</div></div></div>`;
+    } else {
+      ac.innerHTML=`<div class="acomp"><i class="ti ti-sparkles acomp-icon" aria-hidden="true"></i><div class="acomp-body"><div class="acomp-title">Bienvenido, Rodrigo</div><div class="acomp-text">Empieza creando tu primer tema en Modo Estudio.</div></div></div>`;
+    }
+  }
+
+  // actividad github
+  renderActividad();
+
+  // especialidades
+  renderEspecialidades();
+
+  // pendientes
+  const temasOrdenados=[...temas].sort((a,b)=>daysSince(b.ultimoRepaso)-daysSince(a.ultimoRepaso));
+  const pendEl=el('home-pendientes');
+  if(pendEl){
+    if(!hoy.length){pendEl.innerHTML='<div class="empty">Sin repasos pendientes hoy</div>';}
+    else{pendEl.innerHTML=hoy.map(t=>temaDenseHTML(t,true)).join('');}
+  }
+  const todosEl=el('home-todos');
+  if(todosEl){
+    if(!temas.length){todosEl.innerHTML='<div class="empty">Aún no tienes temas. Crea uno en Modo Estudio.</div>';}
+    else{todosEl.innerHTML=temasOrdenados.map(t=>temaDenseHTML(t,false)).join('');}
+  }
+}
+
+function temaDenseHTML(t,urgent){
+  const d=daysSince(t.ultimoRepaso);
+  const status=statusTema(t);
+  const done=t.cards?t.cards.filter(c=>c.stage>=STAGES.length).length:0;
+  const total=t.cards?t.cards.length:0;
+  const pct=total?Math.round(done/total*100):0;
+  const pend=pendientesTema(t);
+  return`<div class="tema-dense ${status}">
+    <div class="td-main">
+      <div class="td-nombre">${t.nombre}${pct===100?' <span class="tag tag-g">dominado</span>':''}</div>
+      <div class="td-row">
+        <span class="td-pill">${t.especialidad||'General'}</span>
+        <span class="td-days">${d===0?'hoy':'hace '+d+'d'}</span>
+        <span class="td-pct">${pct}% · ${total} cards</span>
+        ${pend>0?`<span class="tag tag-a">${pend} pendientes</span>`:''}
+      </div>
+    </div>
+    <button class="td-btn primary" onclick="irRepaso('${t.id}')">Repasar</button>
+  </div>`;
+}
+
+function renderActividad(){
+  const el_act=el('activity-grid');
+  if(!el_act)return;
+  const act=db.actividad||[];
+  const cells=[];
+  for(let i=27;i>=0;i--){
+    const d=addDays(today(),-i);
+    const entry=act.find(a=>a.fecha===d);
+    const lvl=entry?Math.min(entry.sesiones,4):0;
+    cells.push(`<div class="ac ac${lvl}" title="${d}"></div>`);
+  }
+  el_act.innerHTML=cells.join('');
+}
+
+function renderEspecialidades(){
+  const el_esp=el('esp-list');
+  if(!el_esp)return;
+  const temas=db.temas||[];
+  if(!temas.length){el_esp.innerHTML='<div class="empty" style="padding:20px">Sin temas todavía</div>';return;}
+  const espMap={};
+  temas.forEach(t=>{
+    const esp=t.especialidad||'General';
+    if(!espMap[esp])espMap[esp]={total:0,done:0};
+    const total=t.cards?t.cards.length:0;
+    const done=t.cards?t.cards.filter(c=>c.stage>=STAGES.length).length:0;
+    espMap[esp].total+=total;
+    espMap[esp].done+=done;
+  });
+  el_esp.innerHTML=Object.entries(espMap).map(([esp,{total,done}])=>{
+    const pct=total?Math.round(done/total*100):0;
+    return`<div class="esp-item">
+      <div class="esp-row"><span class="esp-name">${esp}</span><span class="esp-pct">${pct}%</span></div>
+      <div class="esp-bar"><div class="esp-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── ESTUDIO ─────────────────────────────────────────────────
+function renderEstudio(){
+  const temas=db.temas||[];
+  const retEl=el('temas-retomar');
+  if(retEl){
+    if(!temas.length){retEl.innerHTML='<div class="empty">Sin temas previos</div>';}
+    else{retEl.innerHTML=temas.map(t=>`<div class="tema-dense ${statusTema(t)}" style="cursor:pointer" onclick="cargarTemaEstudio('${t.id}')">
+      <div class="td-main"><div class="td-nombre">${t.nombre}</div><div class="td-row"><span class="td-pill">${t.especialidad||'General'}</span></div></div>
+      <span style="color:var(--t3);font-size:16px"><i class="ti ti-chevron-right" aria-hidden="true"></i></span>
+    </div>`).join('');}
+  }
+}
+
+function iniciarEstudio(){
+  const nombre=el('tema-input').value.trim();
+  const esp=el('esp-input').value||'Guardia general';
+  if(!nombre)return;
+  const existing=db.temas.find(t=>t.nombre.toLowerCase()===nombre.toLowerCase());
+  if(existing){cargarTemaEstudio(existing.id);return;}
+  const t={id:uid(),nombre,especialidad:esp,fechaEstudio:today(),ultimoRepaso:today(),repasos:[{fecha:today(),tipo:'estudio'}],cards:[],apunte:'',casosHistorial:[]};
+  db.temas.push(t);
+  saveDB();
+  abrirFlujoEstudio(t.id);
+}
+
+function cargarTemaEstudio(id){
+  const t=db.temas.find(x=>x.id===id);
+  if(!t)return;
+  abrirFlujoEstudio(id);
+}
+
+function abrirFlujoEstudio(id){
+  const t=db.temas.find(x=>x.id===id);
+  if(!t)return;
+  estudioState={temaId:id,paso:1,apunte:t.apunte||'',apunteUrl:'',apunteImgB64:null,casosHistorial:[]};
+  el('estudio-selector').style.display='none';
+  el('estudio-flujo').style.display='block';
+  el('flujo-titulo').textContent=t.nombre;
+  el('flujo-esp').textContent=t.especialidad||'General';
+  el('apunte-textarea').value=t.apunte||'';
+  // reset pasos
+  for(let i=1;i<=4;i++){
+    const s=el('step-'+i);
+    if(!s)continue;
+    s.className='flow-step'+(i===1?' step-active':'');
+  }
+  el('step-1').classList.add('step-open');
+  el('caso-act-box').innerHTML='';
+  el('paso1-done').style.display='none';
+  el('repaso-chat-msgs').innerHTML='';
+  el('arbol-est-eval').innerHTML='';
+  el('paso3-done').style.display='none';
+  el('fc-gen-box').innerHTML='';
+  el('paso4-done').style.display='none';
+}
+
+function volverSelector(){
+  el('estudio-selector').style.display='block';
+  el('estudio-flujo').style.display='none';
+  el('tema-input').value='';
+}
+
+function toggleStep(n){
+  const s=el('step-'+n);
+  if(!s)return;
+  s.classList.toggle('step-open');
+}
+
+function completarPaso(n){
+  const s=el('step-'+n);
+  if(s){s.classList.remove('step-active','step-open');s.classList.add('step-done');}
+  const next=el('step-'+(n+1));
+  if(next){next.classList.add('step-active','step-open');}
+  estudioState.paso=n+1;
+}
+
+async function guardarApunte(){
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  if(!t)return;
+  const texto=el('apunte-textarea').value.trim();
+  const url=el('apunte-url').value.trim();
+  if(!texto&&!url){alert('Agrega al menos el texto del apunte.');return;}
+  t.apunte=texto;
+  t.apunteUrl=url||'';
+  estudioState.apunte=texto;
+  estudioState.apunteUrl=url;
+  await saveDB();
+  completarPaso(1);
+}
+
+async function generarCasoActivacion(){
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  if(!t)return;
+  const box=el('caso-act-box');
+  box.innerHTML='<div class="ai-box"><div class="ai-msgs"><div class="msg ai loading">Generando caso de activación...</div></div></div>';
+  const apunte=estudioState.apunte||t.apunte||'';
+  const prompt=apunte
+    ?`Basándote EXACTAMENTE en este apunte sobre "${t.nombre}":\n\n${apunte.slice(0,3000)}\n\nGenera un caso clínico de activación. Formato: historia clínica real con cabecera (paciente ficticio, edad, sexo, motivo de consulta), signos vitales en tabla, presentación clínica, y una pregunta abierta: "¿Cuál es tu diagnóstico y manejo inicial?" El caso debe tener al menos una trampa diagnóstica basada en el apunte. Máximo 280 palabras.`
+    :`Genera un caso clínico de activación sobre "${t.nombre}" para un interno de medicina. Historia clínica real con cabecera, signos vitales, presentación con trampa diagnóstica, y pregunta abierta de diagnóstico y manejo. Máximo 280 palabras.`;
+  const resp=await claude([{role:'user',content:prompt}]);
+  const caso=parseCasoHTML(resp);
+  box.innerHTML=`<div class="hc-card">${caso}</div>
+  <div class="ai-box" style="margin-top:10px">
+    <div class="ai-msgs" id="caso-act-resp-msgs"></div>
+    <div class="ai-input-row">
+      <textarea class="ai-textarea" id="caso-act-input" rows="2" placeholder="Escribe tu diagnóstico y manejo..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();responderCaso();}"></textarea>
+      <button class="ai-send" onclick="responderCaso()">Enviar</button>
+    </div>
+  </div>`;
+  estudioState.casosHistorial.push({tipo:'activacion',caso:resp});
+  el('paso1-done').style.display='flex';
+}
+
+function parseCasoHTML(texto){
+  const lines=texto.split('\n').filter(Boolean);
+  return`<div class="hc-header">
+    <div class="hc-avatar">${generarNombrePaciente().initials}</div>
+    <div class="hc-patient">
+      <div class="hc-patient-name">${generarNombrePaciente().nombre}</div>
+      <div class="hc-patient-meta">Urgencias · ${new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+    <span class="hc-badge">Caso activo</span>
+  </div>
+  <div class="hc-body"><div class="hc-section"><div class="hc-section-text">${texto.replace(/\n/g,'<br>')}</div></div></div>`;
+}
+
+function generarNombrePaciente(){
+  const nombres=[['García, M.','GM'],['López, R.','LR'],['Mendoza, A.','MA'],['Torres, C.','TC'],['Flores, J.','FJ'],['Ríos, P.','RP']];
+  const n=nombres[Math.floor(Math.random()*nombres.length)];
+  return{nombre:n[0],initials:n[1]};
+}
+
+async function responderCaso(){
+  const input=el('caso-act-input');
+  if(!input)return;
+  const r=input.value.trim();
+  if(!r)return;
+  input.value='';
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  addMsg('caso-act-resp-msgs',r,'user');
+  const loading=addMsg('caso-act-resp-msgs','Evaluando...','ai loading');
+  const apunte=estudioState.apunte||t?.apunte||'';
+  const resp=await claude([{role:'user',content:`El apunte del tema "${t?.nombre}" dice:\n${apunte.slice(0,2000)}\n\nEl interno respondió al caso: "${r}"\n\nEvalúa en 3-4 líneas: qué estuvo correcto según el apunte, qué le faltó, y cuál sería el manejo correcto basado en el contenido del apunte.`}]);
+  loading.innerHTML=resp.replace(/\n/g,'<br>');
+  loading.classList.remove('loading');
+}
+
+async function enviarRepasoChat(){
+  const input=el('repaso-chat-input');
+  if(!input)return;
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  addMsg('repaso-chat-msgs',text,'user');
+  const btn=el('repaso-chat-send');
+  if(btn)btn.disabled=true;
+  const loading=addMsg('repaso-chat-msgs','...','ai loading');
+  const apunte=estudioState.apunte||t?.apunte||'';
+  const key='est-'+estudioState.temaId;
+  if(!chatHistorial[key])chatHistorial[key]=[];
+  chatHistorial[key].push({role:'user',content:text});
+  const resp=await claude(chatHistorial[key],`Eres tutor médico de Rodrigo. El apunte del tema "${t?.nombre}" dice:\n${apunte.slice(0,2500)}\nResponde SOLO basándote en ese apunte. En español. Máximo 200 palabras.`);
+  chatHistorial[key].push({role:'assistant',content:resp});
+  loading.innerHTML=resp.replace(/\n/g,'<br>');
+  loading.classList.remove('loading');
+  if(btn)btn.disabled=false;
+}
+
+async function evaluarArbolEstudio(){
+  const file=el('arbol-est-file').files[0];
+  if(!file)return;
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  const box=el('arbol-est-eval');
+  box.innerHTML='<div class="msg ai loading" style="padding:12px;background:var(--s2);border-radius:var(--r)">Analizando árbol clínico...</div>';
+  const b64=await fileToB64(file);
+  const apunte=estudioState.apunte||t?.apunte||'';
+  const resp=await claudeImg([{role:'user',content:[
+    {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+    {type:'text',text:`El apunte del tema "${t?.nombre}" dice:\n${apunte.slice(0,2000)}\n\nEvalúa este árbol de decisión clínica contra el contenido del apunte. Di: 1) nodos correctos según el apunte, 2) nodos que faltan o están incorrectos según el apunte, 3) qué agregar antes de la próxima guardia. Sé específico. Máximo 350 palabras.`}
+  ]}]);
+  box.innerHTML=`<div class="ai-box"><div class="ai-msgs"><div class="msg ai">${resp.replace(/\n/g,'<br>')}</div></div></div>`;
+  el('paso3-done').style.display='flex';
+}
+
+async function generarFlashcards(){
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  if(!t)return;
+  const btn=el('btn-gen-fc');
+  if(btn){btn.disabled=true;btn.textContent='Generando...';}
+  const box=el('fc-gen-box');
+  box.innerHTML='<div class="msg ai loading" style="padding:12px;background:var(--s2);border-radius:var(--r)">Creando tarjetas atómicas desde tu apunte...</div>';
+  const apunte=estudioState.apunte||t.apunte||'';
+  const prompt=apunte
+    ?`Basándote EXACTAMENTE en este apunte:\n\n${apunte.slice(0,3500)}\n\nGenera exactamente 15 flashcards atómicas. Una sola idea por tarjeta, reversible en menos de 10 segundos. Prioriza perlas clínicas, alertas, contraindicaciones y diferencias clave que aparecen en el apunte.\n\nFormato JSON estricto, sin nada más:\n[{"frente":"pregunta concreta","reverso":"respuesta mínima","categoria":"Fisiopatología|Clínica|Diagnóstico|Tratamiento|Farmacología|Urgencias|Complicaciones|Epidemiología"}]`
+    :`Genera 15 flashcards atómicas sobre "${t.nombre}". Formato JSON:\n[{"frente":"...","reverso":"...","categoria":"..."}]`;
+  const resp=await claude([{role:'user',content:prompt}],null,1500);
+  try{
+    const clean=resp.replace(/```json|```/g,'').trim();
+    const start=clean.indexOf('[');
+    const end=clean.lastIndexOf(']');
+    const cards=JSON.parse(clean.slice(start,end+1));
+    t.cards=cards.map(c=>({...c,id:uid(),stage:0,nextReview:today(),imgReverso:null}));
+    await saveDB();
+    box.innerHTML=`<div style="color:var(--green);font-size:13px;padding:12px;background:var(--green-bg);border-radius:var(--r);border:1px solid var(--green-b)">✓ ${cards.length} tarjetas generadas desde tu apunte y guardadas en el mazo.</div>`;
+    el('paso4-done').style.display='flex';
+  }catch(e){
+    box.innerHTML=`<div style="color:var(--red);font-size:13px;padding:12px">Error al procesar las tarjetas. Intenta de nuevo.</div>`;
+  }
+  if(btn){btn.disabled=false;btn.textContent='↗ Generar flashcards del tema';}
+}
+
+async function completarEstudio(){
+  const t=db.temas.find(x=>x.id===estudioState.temaId);
+  if(!t)return;
+  t.ultimoRepaso=today();
+  t.repasos=[...(t.repasos||[]),{fecha:today(),tipo:'estudio-completo'}];
+  registrarActividad();
+  await saveDB();
+  volverSelector();
+  renderHome();
+  showPage('home');
+}
+
+// ─── FLASHCARDS ──────────────────────────────────────────────
+function renderFC(){
+  const temas=db.temas.filter(t=>t.cards&&t.cards.length>0);
+  const selEl=el('fc-selector');
+  if(selEl){
+    selEl.innerHTML=temas.length?temas.map(t=>{
+      const pend=t.cards.filter(isDue).length;
+      return`<button class="btn btn-ghost" style="font-size:12px;padding:6px 14px;border-radius:20px;${fcState.temaId===t.id?'border-color:var(--violet-b);color:var(--violet);':''}" onclick="selFCTema('${t.id}')">${t.nombre}${pend>0?` <span style="color:var(--amber)">(${pend})</span>`:''}</button>`;
+    }).join(''):'<div class="empty">Sin temas con flashcards todavía</div>';
+  }
+  if(fcState.temaId)renderFCCard();
+}
+
+function selFCTema(id){
+  const t=db.temas.find(x=>x.id===id);
+  if(!t)return;
+  fcState.temaId=id;
+  let cards=t.cards.filter(isDue);
+  if(!cards.length)cards=[...t.cards];
+  fcState.cards=cards;
+  fcState.idx=0;fcState.flipped=false;fcState.ok=0;fcState.fail=0;
+  el('fc-done').style.display='none';
+  el('fc-card-wrap').style.display='block';
+  el('fc-eval').classList.add('hidden');
+  renderFCCard();
+  renderFC();
+}
+
+function renderFCCard(){
+  const t=db.temas.find(x=>x.id===fcState.temaId);
+  if(!t||!fcState.cards.length){showFCDone();return;}
+  if(fcState.idx>=fcState.cards.length){showFCDone();return;}
+  const counts=[0,0,0,0,0,0];
+  t.cards.forEach(c=>{if(c.stage>=STAGES.length)counts[5]++;else counts[c.stage]++;});
+  setHTML('fc-stages-bar',['s0','s1','s3','s7','s14','done'].map((cls,i)=>`<span class="fc-pill ${cls}">${counts[i]} ${STAGE_LABELS[i]}</span>`).join(''));
+  el('fc-count').textContent=`${fcState.idx+1} / ${fcState.cards.length}`;
+  const c=fcState.cards[fcState.idx];
+  setHTML('fc-cat-f',c.categoria||'—');
+  setHTML('fc-cat-b',c.categoria||'—');
+  setHTML('fc-q',c.frente);
+  el('fc-a').innerHTML=c.reverso+(c.imgReverso?`<br><img src="${c.imgReverso}" class="fc-a-img" alt="imagen de apoyo">`:'');
+  setHTML('fc-stage-note',`Etapa: ${STAGE_LABELS[Math.min(c.stage,STAGES.length)]} · próx: ${c.nextReview||'hoy'}`);
+  el('fc-inner').classList.remove('flipped');
+  fcState.flipped=false;
+  el('fc-eval').classList.add('hidden');
+}
+
+function flipFC(){
+  if(!fcState.temaId||!fcState.cards.length)return;
+  if(!fcState.flipped){
+    fcState.flipped=true;
+    el('fc-inner').classList.add('flipped');
+    el('fc-eval').classList.remove('hidden');
+  }
+}
+
+async function markFC(correct){
+  if(!fcState.temaId||!fcState.cards.length)return;
+  const card=fcState.cards[fcState.idx];
+  const t=db.temas.find(x=>x.id===fcState.temaId);
+  const real=t.cards.find(c=>c.id===card.id);
+  if(correct){fcState.ok++;real.stage=Math.min(real.stage+1,STAGES.length);real.nextReview=real.stage<STAGES.length?addDays(today(),STAGES[real.stage]):null;}
+  else{fcState.fail++;real.stage=0;real.nextReview=today();}
+  await saveDB();
+  if(fcState.idx<fcState.cards.length-1){fcState.idx++;fcState.flipped=false;el('fc-inner').classList.remove('flipped');el('fc-eval').classList.add('hidden');renderFCCard();}
+  else showFCDone();
+}
+
+function prevFC(){if(fcState.idx>0){fcState.idx--;fcState.flipped=false;el('fc-inner').classList.remove('flipped');el('fc-eval').classList.add('hidden');renderFCCard();}}
+function nextFC(){if(fcState.idx<fcState.cards.length-1){fcState.idx++;fcState.flipped=false;el('fc-inner').classList.remove('flipped');el('fc-eval').classList.add('hidden');renderFCCard();}else showFCDone();}
+
+function showFCDone(){
+  el('fc-card-wrap').style.display='none';
+  el('fc-eval').classList.add('hidden');
+  el('fc-done').style.display='block';
+  setHTML('fc-done-ok',fcState.ok);
+  setHTML('fc-done-fail',fcState.fail);
+  const t=db.temas.find(x=>x.id===fcState.temaId);
+  const allDone=t&&t.cards.every(c=>c.stage>=STAGES.length);
+  setHTML('fc-done-title',allDone?'¡Mazo dominado! 🎉':'Sesión completada');
+  setHTML('fc-done-msg',allDone?'Completaste el ciclo 0→1→3→7→14 con todas las tarjetas correctas. Exporta a Anki.':'Las tarjetas falladas vuelven a día 0. Repasa según el algoritmo.');
+  el('btn-export-anki').style.display=allDone?'inline-flex':'none';
+}
+
+function reiniciarFC(){if(fcState.temaId){selFCTema(fcState.temaId);el('fc-card-wrap').style.display='block';}}
+
+async function addImgToCard(){
+  const file=el('fc-img-input').files[0];
+  if(!file||!fcState.temaId||!fcState.cards.length)return;
+  const b64=await fileToB64(file);
+  const card=fcState.cards[fcState.idx];
+  const t=db.temas.find(x=>x.id===fcState.temaId);
+  const real=t.cards.find(c=>c.id===card.id);
+  real.imgReverso='data:'+file.type+';base64,'+b64;
+  await saveDB();
+  renderFCCard();
+}
+
+function exportAnki(){
+  if(!fcState.temaId)return;
+  const t=db.temas.find(x=>x.id===fcState.temaId);
+  // Genera .apkg simulado como txt con formato Anki
+  const lines=['#separator:tab','#html:true','#notetype:Basic'].concat(
+    t.cards.map(c=>`${c.frente}\t${c.reverso}${c.imgReverso?'<br><img src="'+c.imgReverso+'">':''}`)
+  ).join('\n');
+  const blob=new Blob([lines],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=t.nombre.replace(/\s+/g,'_')+'_anki.txt';
+  a.click();
+}
+
+// ─── REPASO ──────────────────────────────────────────────────
+function renderRepaso(){
+  const temas=db.temas||[];
+  const ordenados=[...temas].sort((a,b)=>daysSince(b.ultimoRepaso)-daysSince(a.ultimoRepaso));
+  const el_list=el('repaso-temas-list');
+  if(el_list){
+    if(!temas.length){el_list.innerHTML='<div class="empty">Sin temas todavía. Crea uno en Modo Estudio.</div>';}
+    else{el_list.innerHTML=ordenados.map(t=>{
+      const d=daysSince(t.ultimoRepaso);
+      const pend=pendientesTema(t);
+      return`<div class="tema-dense ${statusTema(t)}">
+        <div class="td-main">
+          <div class="td-nombre">${t.nombre}</div>
+          <div class="td-row"><span class="td-pill">${t.especialidad||'General'}</span><span class="td-days">hace ${d}d</span>${pend?`<span class="tag tag-a">${pend} pendientes</span>`:''}</div>
+        </div>
+        <button class="td-btn primary" onclick="abrirRepaso('${t.id}')">Repasar →</button>
+      </div>`;
+    }).join('');}
+  }
+}
+
+function irRepaso(id){abrirRepaso(id);showPage('repaso');}
+
+function abrirRepaso(id){
+  const t=db.temas.find(x=>x.id===id);
+  if(!t)return;
+  repasoState={temaId:id,casoActual:null,casosHistorial:t.casosHistorial||[]};
+  el('repaso-selector').style.display='none';
+  el('repaso-flujo').style.display='block';
+  setHTML('repaso-titulo',t.nombre);
+  el('repaso-dias-sub').textContent=`Último repaso hace ${daysSince(t.ultimoRepaso)} día${daysSince(t.ultimoRepaso)!==1?'s':''}`;
+  el('repaso-caso-msgs').innerHTML='<div class="msg ai">Cuando estés listo, genera el caso holístico para comenzar.</div>';
+  el('repaso-libre-area').style.display='none';
+  el('repaso-opciones-area').style.display='none';
+  el('repaso-libre-msgs').innerHTML='';
+  el('arbol-rep-eval').innerHTML='';
+  el('interrogatorio-box').innerHTML='';
+}
+
+function volverRepasoSel(){
+  el('repaso-selector').style.display='block';
+  el('repaso-flujo').style.display='none';
+}
+
+async function generarCasoRepaso(){
+  const t=db.temas.find(x=>x.id===repasoState.temaId);
+  if(!t)return;
+  const btn=el('btn-caso-repaso');
+  if(btn){btn.disabled=true;btn.textContent='Generando...';}
+  el('repaso-caso-msgs').innerHTML='';
+  addMsg('repaso-caso-msgs','Generando caso holístico...','ai loading');
+  const apunte=t.apunte||'';
+  const historial=repasoState.casosHistorial||[];
+  const tieneFallados=historial.filter(c=>c.resultado==='fallado').length>0;
+  const usarVariante=tieneFallados&&Math.random()<0.5;
+  const casoAnterior=usarVariante?historial.find(c=>c.resultado==='fallado'):null;
+  const prompt=apunte
+    ?`Apunte del tema "${t.nombre}":\n${apunte.slice(0,3000)}\n\n${casoAnterior?`El interno falló este caso antes: "${casoAnterior.caso.slice(0,200)}...". Genera una VARIANTE de ese caso con diferente presentación pero mismo concepto clave.`:'Genera un caso holístico NUEVO basado en el apunte.'}\n\nFormato: historia clínica real con cabecera de paciente, signos vitales, presentación clínica con al menos una trampa diagnóstica. Incluye datos que requieran decisiones de diagnóstico Y manejo farmacológico. Termina con: "¿Cuál es tu diagnóstico y plan de manejo completo?" Máximo 320 palabras.`
+    :`Genera un caso holístico sobre "${t.nombre}" para un interno. Historia clínica real, signos vitales, trampa diagnóstica, pregunta de diagnóstico y manejo. Máximo 320 palabras.`;
+  const resp=await claude([{role:'user',content:prompt}]);
+  repasoState.casoActual=resp;
+  const caso=parseCasoHTML(resp);
+  el('repaso-caso-msgs').innerHTML='';
+  el('repaso-caso-msgs').insertAdjacentHTML('beforeend',`<div class="hc-card">${caso}</div>`);
+  el('repaso-libre-area').style.display='block';
+  if(btn){btn.disabled=false;btn.textContent='↗ Nuevo caso';}
+}
+
+async function enviarRespuestaLibre(){
+  const input=el('repaso-libre-input');
+  const r=input.value.trim();
+  if(!r||!repasoState.temaId)return;
+  input.value='';
+  const t=db.temas.find(x=>x.id===repasoState.temaId);
+  addMsg('repaso-libre-msgs',r,'user');
+  const loading=addMsg('repaso-libre-msgs','Evaluando tu respuesta...','ai loading');
+  const apunte=t?.apunte||'';
+  const resp=await claude([{role:'user',content:`Apunte del tema "${t?.nombre}":\n${apunte.slice(0,2000)}\n\nCaso presentado:\n${repasoState.casoActual?.slice(0,500)}\n\nRespuesta del interno: "${r}"\n\nEvalúa en 3-4 líneas basándote en el apunte: qué estuvo correcto, qué le faltó, cuál sería el manejo correcto. Luego genera 4 opciones de autoevaluación (una correcta) sobre el punto más crítico del caso. Formato JSON al final del texto:\n{"pregunta":"¿...?","opciones":["A...","B...","C...","D..."],"correcta":0}`}]);
+  let texto=resp;let opcData=null;
+  try{const m=resp.match(/\{[\s\S]*?"correcta"[\s\S]*?\}/);if(m){opcData=JSON.parse(m[0]);texto=resp.replace(m[0],'').trim();}}catch(e){}
+  loading.innerHTML=texto.replace(/\n/g,'<br>');loading.classList.remove('loading');
+  const resultado=r.length>20?'correcto':'fallado';
+  repasoState.casosHistorial.push({caso:repasoState.casoActual||'',resultado,fecha:today()});
+  if(t)t.casosHistorial=[...(t.casosHistorial||[]),...repasoState.casosHistorial.slice(-1)];
+  if(opcData){
+    el('repaso-opciones-area').style.display='block';
+    setHTML('repaso-opciones',`<div style="font-size:13px;font-weight:500;color:var(--t1);margin-bottom:8px">${opcData.pregunta}</div>`+
+      opcData.opciones.map((o,i)=>`<button class="opcion" id="opc-${i}" onclick="evalOpc(${i},${opcData.correcta},${opcData.opciones.length},'${o.replace(/'/g,"\\'")}')">${o}</button>`).join(''));
+  }
+  el('repaso-libre-msgs').scrollTop=99999;
+  await saveDB();
+}
+
+async function evalOpc(idx,correcta,total,texto){
+  for(let i=0;i<total;i++){
+    const b=el('opc-'+i);
+    if(!b)continue;
+    b.disabled=true;
+    if(i===correcta)b.classList.add('correcta');
+    else if(i===idx&&idx!==correcta)b.classList.add('incorrecta');
+  }
+  const fb=el('repaso-feedback');
+  if(!fb)return;
+  fb.innerHTML='<div class="msg ai loading" style="margin-top:8px">...</div>';
+  const resp=await claude([{role:'user',content:`El interno eligió "${texto}" y la respuesta ${idx===correcta?'es correcta':'está incorrecta'}. Da una explicación clínica de 2 líneas del concepto clave que responde esta pregunta.`}]);
+  fb.innerHTML=`<div class="msg ai" style="margin-top:8px">${idx===correcta?'✓ ':'✗ '}${resp.replace(/\n/g,'<br>')}</div>`;
+}
+
+async function iniciarInterrogatorio(){
+  const t=db.temas.find(x=>x.id===repasoState.temaId);
+  if(!t)return;
+  const box=el('interrogatorio-box');
+  box.innerHTML='<div class="ai-box"><div class="ai-msgs" id="int-msgs"><div class="msg ai loading">Iniciando interrogatorio...</div></div><div class="ai-input-row"><textarea class="ai-textarea" id="int-input" rows="2" placeholder="Responde libremente..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();enviarInt();}"></textarea><button class="ai-send" onclick="enviarInt()">Responder</button></div></div>';
+  const apunte=t.apunte||'';
+  const resp=await claude([{role:'user',content:`Apunte del tema "${t.nombre}":\n${apunte.slice(0,2500)}\n\nInicia un interrogatorio oral médico de 5 preguntas sobre los puntos más importantes del apunte. Haz la primera pregunta. Cuando el interno responda, evalúa brevemente y lanza la siguiente. Al final da un resumen de su desempeño. Empieza ya con la primera pregunta, sin preámbulo.`}]);
+  el('int-msgs').innerHTML='';
+  addMsg('int-msgs',resp,'ai');
+  if(!chatHistorial['int-'+repasoState.temaId])chatHistorial['int-'+repasoState.temaId]=[{role:'user',content:`Apunte: ${apunte.slice(0,2500)}\nInicia el interrogatorio.`},{role:'assistant',content:resp}];
+}
+
+async function enviarInt(){
+  const input=el('int-input');
+  if(!input)return;
+  const r=input.value.trim();
+  if(!r)return;
+  input.value='';
+  addMsg('int-msgs',r,'user');
+  const key='int-'+repasoState.temaId;
+  if(!chatHistorial[key])chatHistorial[key]=[];
+  chatHistorial[key].push({role:'user',content:r});
+  const loading=addMsg('int-msgs','...','ai loading');
+  const resp=await claude(chatHistorial[key]);
+  chatHistorial[key].push({role:'assistant',content:resp});
+  loading.innerHTML=resp.replace(/\n/g,'<br>');loading.classList.remove('loading');
+  el('int-msgs').scrollTop=99999;
+}
+
+async function evaluarArbolRepaso(){
+  const file=el('arbol-rep-file').files[0];
+  if(!file)return;
+  const t=db.temas.find(x=>x.id===repasoState.temaId);
+  const box=el('arbol-rep-eval');
+  box.innerHTML='<div class="msg ai loading" style="padding:12px;background:var(--s2);border-radius:var(--r)">Analizando árbol...</div>';
+  const b64=await fileToB64(file);
+  const apunte=t?.apunte||'';
+  const resp=await claudeImg([{role:'user',content:[
+    {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+    {type:'text',text:`Apunte del tema "${t?.nombre}":\n${apunte.slice(0,2000)}\n\nEvalúa este árbol de decisión clínica contra el apunte. Di: nodos correctos según el apunte, nodos que faltan o están mal, y qué agregar. Sé específico. Máximo 350 palabras.`}
+  ]}]);
+  box.innerHTML=`<div class="ai-box"><div class="ai-msgs"><div class="msg ai">${resp.replace(/\n/g,'<br>')}</div></div></div>`;
+}
+
+async function cerrarRepaso(){
+  const t=db.temas.find(x=>x.id===repasoState.temaId);
+  if(!t)return;
+  t.ultimoRepaso=today();
+  t.repasos=[...(t.repasos||[]),{fecha:today(),tipo:'repaso'}];
+  registrarActividad();
+  await saveDB();
+  volverRepasoSel();
+  renderHome();
+  showPage('home');
+}
+
+// ─── TEMAS ───────────────────────────────────────────────────
+function renderTemas(){
+  const el_list=el('all-temas');
+  if(!el_list)return;
+  const temas=db.temas||[];
+  if(!temas.length){el_list.innerHTML='<div class="empty">Sin temas todavía</div>';return;}
+  el_list.innerHTML=[...temas].sort((a,b)=>daysSince(b.ultimoRepaso)-daysSince(a.ultimoRepaso)).map(t=>{
+    const d=daysSince(t.ultimoRepaso);
+    const pct=t.cards&&t.cards.length?Math.round(t.cards.filter(c=>c.stage>=STAGES.length).length/t.cards.length*100):0;
+    return`<div class="tema-dense ${statusTema(t)}">
+      <div class="td-main">
+        <div class="td-nombre">${t.nombre}</div>
+        <div class="td-row"><span class="td-pill">${t.especialidad||'General'}</span><span class="td-days">hace ${d}d</span><span class="td-pct">${pct}%</span></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="td-btn" onclick="abrirRepaso('${t.id}');showPage('repaso')">Repasar</button>
+        <button class="td-btn" style="color:var(--red);border-color:var(--red-b)" onclick="eliminarTema('${t.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function agregarTemaManual(){
+  const nombre=el('manual-nombre').value.trim();
+  const esp=el('manual-esp').value||'Guardia general';
+  const raw=el('manual-cards').value.trim();
+  if(!nombre)return;
+  const cards=raw?raw.split('\n').filter(l=>l.includes('|')).map(l=>{
+    const[f,r]=l.split('|').map(s=>s.trim());
+    return{id:uid(),frente:f,reverso:r,categoria:'General',stage:0,nextReview:today(),imgReverso:null};
+  }):[];
+  db.temas.push({id:uid(),nombre,especialidad:esp,fechaEstudio:today(),ultimoRepaso:today(),repasos:[{fecha:today(),tipo:'manual'}],cards,apunte:'',casosHistorial:[]});
+  await saveDB();
+  el('manual-nombre').value='';el('manual-cards').value='';
+  renderTemas();renderHome();
+}
+
+async function eliminarTema(id){
+  if(!confirm('¿Eliminar este tema y todas sus tarjetas?'))return;
+  db.temas=db.temas.filter(t=>t.id!==id);
+  await saveDB();renderTemas();renderHome();
+}
+
+// ─── AJUSTES / NOTIFICACIONES ────────────────────────────────
+function renderAjustes(){
+  el('toggle-diaria').className='toggle'+(db.notifDiaria?' on':'');
+  el('toggle-vencidos').className='toggle'+(db.notifVencidos?' on':'');
+  el('notif-hora').value=db.notifHora||'20:00';
+  el('rotacion-sel').value=db.rotacion||'Guardia general';
+}
+
+async function toggleNotif(tipo){
+  if(tipo==='diaria'){db.notifDiaria=!db.notifDiaria;}
+  else{db.notifVencidos=!db.notifVencidos;}
+  await saveDB();renderAjustes();
+  if(db.notifDiaria||db.notifVencidos)pedirPermiso();
+}
+
+async function guardarHora(){
+  db.notifHora=el('notif-hora').value;
+  await saveDB();
+  programarNotificacion();
+}
+
+async function guardarRotacion(){
+  db.rotacion=el('rotacion-sel').value;
+  await saveDB();
+}
+
+async function pedirPermiso(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='default'){
+    const p=await Notification.requestPermission();
+    if(p==='granted')programarNotificacion();
+  }else if(Notification.permission==='granted'){
+    programarNotificacion();
+  }
+}
+
+function programarNotificacion(){
+  if(!('serviceWorker' in navigator)||Notification.permission!=='granted')return;
+  const ahora=new Date();
+  const [h,m]=(db.notifHora||'20:00').split(':').map(Number);
+  const target=new Date(ahora.getFullYear(),ahora.getMonth(),ahora.getDate(),h,m,0);
+  if(target<=ahora)target.setDate(target.getDate()+1);
+  const ms=target-ahora;
+  setTimeout(()=>{
+    if(db.notifDiaria){
+      const pend=db.temas.reduce((a,t)=>a+pendientesTema(t),0);
+      new Notification('Modo Internado',{body:pend>0?`Tienes ${pend} repaso${pend>1?'s':''} pendientes hoy.`:'Sin repasos pendientes. ¡Al día!',icon:'./icon-192.png'});
+    }
+    programarNotificacion();
+  },ms);
+}
+
+function verificarVencidos(){
+  if(!db.notifVencidos||Notification.permission!=='granted')return;
+  const venc=db.temas.filter(t=>daysSince(t.ultimoRepaso)>14);
+  if(venc.length>0){
+    new Notification('Modo Internado — temas vencidos',{body:`${venc.map(t=>t.nombre).join(', ')} llevan más de 14 días sin repasar.`,icon:'./icon-192.png'});
+  }
+}
+
+// ─── ACTIVIDAD ───────────────────────────────────────────────
+function registrarActividad(){
+  if(!db.actividad)db.actividad=[];
+  const entry=db.actividad.find(a=>a.fecha===today());
+  if(entry)entry.sesiones=Math.min((entry.sesiones||0)+1,4);
+  else db.actividad.push({fecha:today(),sesiones:1});
+  if(db.actividad.length>84)db.actividad=db.actividad.slice(-84);
+  if(!db.lastStudyDate||db.lastStudyDate!==today()){
+    if(db.lastStudyDate===addDays(today(),-1))db.streak=(db.streak||0)+1;
+    else db.streak=1;
+    db.lastStudyDate=today();
+  }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────
+function fileToB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej;r.readAsDataURL(file);
+  });
+}
+
+// ─── PWA ─────────────────────────────────────────────────────
+function registrarSW(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+}
+
+
+// ─── AUTH UI ──────────────────────────────────────────────────
+let authTabActual='login';
+
+function switchAuthTab(tab){
+  authTabActual=tab;
+  document.getElementById('tab-login').style.background=tab==='login'?'var(--s3)':'none';
+  document.getElementById('tab-login').style.color=tab==='login'?'var(--t1)':'var(--t2)';
+  document.getElementById('tab-registro').style.background=tab==='registro'?'var(--s3)':'none';
+  document.getElementById('tab-registro').style.color=tab==='registro'?'var(--t1)':'var(--t2)';
+  document.getElementById('auth-btn').textContent=tab==='login'?'Entrar':'Crear cuenta';
+}
+
+async function authAction(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('auth-error');
+  const btn=document.getElementById('auth-btn');
+  if(!email||!pass){errEl.textContent='Completa email y contraseña.';errEl.style.display='block';return;}
+  btn.textContent='...';btn.disabled=true;
+  errEl.style.display='none';
+  let data;
+  if(authTabActual==='login'){
+    data=await sbSignIn(email,pass);
+  }else{
+    data=await sbSignUp(email,pass);
+    if(!data.error&&data.user){
+      // Auto login después de registro
+      data=await sbSignIn(email,pass);
+    }
+  }
+  btn.disabled=false;
+  if(data.error||data.msg){
+    const msg=data.error?.message||data.msg||'Error desconocido';
+    errEl.textContent=msg==='Invalid login credentials'?'Email o contraseña incorrectos.':msg;
+    errEl.style.display='block';
+    btn.textContent=authTabActual==='login'?'Entrar':'Crear cuenta';
+    return;
+  }
+  if(sbSession){
+    document.getElementById('auth-modal').style.display='none';
+    await loadDB();
+    renderHome();
+    renderEstudio();
+    renderFC();
+    // Mostrar email en sidebar
+    const userEl=document.getElementById('sb-user-email');
+    if(userEl)userEl.textContent=sbSession.user.email;
+  }
+}
+
+async function cerrarSesion(){
+  await sbSignOut();
+  db={temas:[],streak:0,lastStudyDate:null,totalSessions:0,notifHora:'20:00',notifDiaria:true,notifVencidos:true,rotacion:'Guardia general',actividad:[]};
+  document.getElementById('auth-modal').style.display='flex';
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+async function init(){
+  // Restaurar sesión de Supabase si existe
+  try{
+    const stored=localStorage.getItem('sb_session');
+    if(stored){
+      sbSession=JSON.parse(stored);
+      // Intentar refresh del token
+      const ok=await sbRefreshSession().catch(()=>false);
+      if(!ok)sbSession=null;
+    }
+  }catch(e){}
+  try{await loadDB();}catch(e){console.warn('loadDB error:',e);}
+  if(!db.temas||!db.temas.length){
+    db.temas=[{
+      id:'cefaleas-seed',nombre:'Cefaleas',especialidad:'Neurología',
+      fechaEstudio:today(),ultimoRepaso:today(),
+      repasos:[{fecha:today(),tipo:'estudio'}],casosHistorial:[],
+      apunte:`CEFALEAS - Migraña: dolor pulsátil hemicraneal + náuseas + foto/fonofobia. Fisiopatología: despolarización del trigémino. Fases: pródromo → aura (20-25%, escotomas centelleantes, ventana terapéutica 30 min) → ictal → postíctal. Tratamiento abortivo: triptanes (contraindicados en cardiopatía isquémica), ergotamina (contraindicada en cardiopatía, principal causa de sobreuso), ketorolaco IV + metoclopramida si cardiopatía. Límite: 10 dosis/mes. Preventivos: propranolol (HTA), amitriptilina (depresión/insomnio), valproato (↑peso), topiramato (↓peso, mal tolerado). Rimegepant: antagonista CGRP, doble función abortivo+preventivo. Cefalea tensional: opresiva tipo casco, sin aura/náuseas, paracetamol + amitriptilina. Cefalea en racimos: unilateral periorbitaria, ptosis+lagrimeo+rinorrea ipsilateral, 6-8 crisis/día, abortivo O2 100% 10-15L/min, preventivo verapamilo. Banderas rojas: trueno→aneurisma, fiebre+nuca rígida→meningitis, Babinski→masa, debut>50 años. Arteritis temporal: >50 años, arteria temporal indurada, VSG elevada, riesgo ceguera, corticoides urgente. Pseudotumor cerebri: mujer joven+obesa, TC normal, papiledema, vitamina A/tetraciclinas, acetazolamida+topiramato.`,
+      cards:[
+        {id:uid(),frente:'¿Cuál es la vía final común del dolor migrañoso?',reverso:'Despolarización masiva de las terminaciones sensitivas del nervio trigémino.',categoria:'Fisiopatología',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuánto dura la ventana terapéutica del aura?',reverso:'~30 minutos — tiempo para ingerir el abortivo antes de la cascada inflamatoria.',categoria:'Clínica',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuándo están contraindicados los triptanes?',reverso:'Isquemia miocárdica previa — receptores cardíacos para triptanes con riesgo de nuevo evento.',categoria:'Farmacología',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuál es el límite mensual de analgésicos en migraña?',reverso:'Máximo 10 dosis/mes. Superarlo induce migraña por sobreuso iatrogénica.',categoria:'Farmacología',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuál es el abortivo de elección en cefalea en racimos?',reverso:'Oxígeno al 100% a 10-15 L/min — evita toxicidad de múltiples dosis diarias.',categoria:'Tratamiento',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuál es el preventivo de primera línea en racimos?',reverso:'Verapamilo — inicio inmediato al diagnóstico.',categoria:'Tratamiento',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Qué debes descartar ante cefalea tipo trueno?',reverso:'Ruptura de aneurisma intracraneal → TC de cráneo urgente sin contraste.',categoria:'Urgencias',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Qué buscas en el fondo de ojo ante pseudotumor cerebri?',reverso:'Papiledema bilateral — edema de la papila por aumento de PIC.',categoria:'Diagnóstico',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Por qué la arteritis temporal es emergencia?',reverso:'La vasculitis progresa a vasos del globo ocular → ceguera irreversible. Corticoides 1mg/kg inmediato.',categoria:'Urgencias',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuál es el perfil clásico del pseudotumor cerebri?',reverso:'Mujer joven + obesidad + cefalea matutina + TC normal.',categoria:'Diagnóstico',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuáles son los signos autonómicos ipsilaterales de cefalea en racimos?',reverso:'Ptosis, lagrimeo intenso, ojo rojo y rinorrea — todos ipsilaterales al dolor.',categoria:'Clínica',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Qué bandera roja contraindica el diagnóstico de migraña simple?',reverso:'Babinski positivo o déficit focal neurológico → masa intracraneal. Debut >50 años también es atípico.',categoria:'Urgencias',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuál es la diferencia clave entre valproato y topiramato como preventivos?',reverso:'Valproato: efectivo pero aumenta peso. Topiramato: reduce peso y controla rápido, pero parestesias + sabor metálico + bloqueos cognitivos.',categoria:'Farmacología',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Qué es el rimegepant?',reverso:'Antagonista del receptor CGRP con doble función: aborta la crisis Y previene si se usa interdiario. Presentación bucodispersable.',categoria:'Farmacología',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuándo iniciar tratamiento preventivo en migraña?',reverso:'Una o más crisis por semana. Factores de cronificación: sexo femenino, estrés, privación de sueño, personalidad obsesiva.',categoria:'Tratamiento',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuál es el preventivo de elección en migrañoso con HTA?',reverso:'Propranolol (betabloqueador) — trata simultáneamente la migraña y la hipertensión.',categoria:'Tratamiento',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuáles son los acompañantes ineludibles de la crisis migrañosa?',reverso:'Náuseas, vómitos, fotofobia, fonofobia y osmofobia — por hipersensibilización central ictal.',categoria:'Clínica',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuáles son las 4 fases del episodio migrañoso?',reverso:'1. Pródromo (bostezos, antojos) → 2. Aura (escotomas centelleantes) → 3. Ictal (dolor pulsátil) → 4. Postíctal (agotamiento + sueño).',categoria:'Clínica',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Qué complicación grave si el aura compromete solo un ojo?',reverso:'Isquemia de la arteria central de la retina → derivación oftalmológica urgente para descartar ceguera permanente.',categoria:'Complicaciones',stage:0,nextReview:today(),imgReverso:null},
+        {id:uid(),frente:'¿Cuáles son los gatillos tóxicos del pseudotumor cerebri?',reverso:'Tetraciclinas crónicas o megadosis vitamina A (25,000-50,000 UI/día). Manejo: suspender tóxico + acetazolamida + topiramato + descenso de peso.',categoria:'Diagnóstico',stage:0,nextReview:today(),imgReverso:null},
+      ]
+    }];
+    await saveDB();
+  }
+  // Mostrar auth si no hay sesión
+  if(!sbSession){
+    document.getElementById('auth-modal').style.display='flex';
+    document.getElementById('loading').style.display='none';
+    return;
+  }
+  const userEl=document.getElementById('sb-user-email');
+  if(userEl&&sbSession)userEl.textContent=sbSession.user.email;
+  registrarSW();
+  if(db.notifDiaria||db.notifVencidos)pedirPermiso();
+  verificarVencidos();
+  el('loading').style.display='none';
+  el('app').style.display='block';
+  renderHome();
+  renderEstudio();
+  renderFC();
+}
+
+init();
+
+</script>
+</body>
+</html>
